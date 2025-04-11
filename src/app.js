@@ -17,8 +17,8 @@ app.post("/signup", async (req, res) => {
 })
 
 
-// get by EmailId
-app.get("/feed", async (req, res) => {
+// get document by EmailId
+app.get("/feedbyemail", async (req, res) => {
   const email = req.body.emailId;
      try { 
       const user = await User.find({emailId : email});         
@@ -33,7 +33,7 @@ app.get("/feed", async (req, res) => {
      }
 })
 
-// Get all document 
+// Get all documents
 app.get("/feed", async (req, res) => {
   const email = req.body.emailId;
      try { 
@@ -48,6 +48,33 @@ app.get("/feed", async (req, res) => {
       res.status(404).send("Email not found")
      }
 })
+
+// Delete the Data
+app.delete("/user", async (req, res) => {
+  const userId = req.body.userId;
+  try {
+    const user = await User.findByIdAndDelete(userId);
+    res.send("User deleted Successfully");
+  } catch (error) {
+    res.status(404).send("Something went wrong");
+  }
+})
+
+// Upadate the documents
+app.patch("/user",  async (req, res) => {
+    const userId = req.body.userId
+    const data = req.body
+    try {
+    const user =  await User.findByIdAndUpdate({_id : userId}, data, {
+      returnDocument : "after",
+    })
+    res.send("Updated Successfully");
+    } catch (error) {
+      res.status(404).send("Something went wrong");
+    }
+})
+
+
 
 
 connectDB().then (()=>{
