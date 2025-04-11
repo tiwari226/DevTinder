@@ -12,7 +12,7 @@ app.post("/signup", async (req, res) => {
     await user.save();
     res.send("Account Created Succesfully....")
   } catch (error) {
-    res.status(404).send("Data not saved !!")
+     res.status(404).send("Data not saved !!")
   }
 })
 
@@ -67,6 +67,7 @@ app.patch("/user",  async (req, res) => {
     try {
     const user =  await User.findByIdAndUpdate({_id : userId}, data, {
       returnDocument : "after",
+      runValidators : true,
     })
     res.send("Updated Successfully");
     } catch (error) {
