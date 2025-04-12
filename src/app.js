@@ -83,7 +83,7 @@ app.patch("/user/:userId",  async (req, res) => {
     } catch (error) {
       res.status(404).send("Update Failed!!!  " + error.message);
     }
-}
+})
 
 
 connectDB().then (()=>{
