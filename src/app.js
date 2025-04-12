@@ -61,21 +61,29 @@ app.delete("/user", async (req, res) => {
 })
 
 // Upadate the documents
-app.patch("/user",  async (req, res) => {
-    const userId = req.body.userId
+app.patch("/user/:userId",  async (req, res) => {
+    const userId = req.params?.userId;
     const data = req.body
     try {
+    const ALLOWED_UPDATE = ["photograph","about", "gender", "age", "skills"];
+    const isUpdateAllowed = Object.keys(data).every((k) => 
+      ALLOWED_UPDATE.includes(k)
+    );
+    if(!isUpdateAllowed){
+        throw new Error("Update is Not allowed due to some restriction")
+    }
+    if(data?.skills.length > 10){
+      throw new Error("skills can't be more than 10")
+    }
     const user =  await User.findByIdAndUpdate({_id : userId}, data, {
       returnDocument : "after",
       runValidators : true,
     })
-    res.send("Updated Successfully");
+     res.send("Updated Successfully.....");
     } catch (error) {
-      res.status(404).send("Something went wrong");
+      res.status(404).send("Update Failed!!!  " + error.message);
     }
-})
-
-
+}
 
 
 connectDB().then (()=>{
