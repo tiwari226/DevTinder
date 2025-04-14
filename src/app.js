@@ -2,20 +2,54 @@ const express = require("express")
 const connectDB = require("./config/database")
 const app = express()
 const User = require("./models/user")
+const validateSignUpData = require("./utils/validation")
 app.use(express.json())
+const bcrypt = require('bcrypt');
 
 
 // API for sign up
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body)
   try {
+    // validation of data
+    validateSignUpData(req);
+    const {firstName, lastName, emailId, password} = req.body;
+
+    // enctyption of password
+   const passwordHash = await bcrypt.hash(password, 10);
+
+   // creating a new instance of User;
+    const user = new User({
+    firstName,
+    lastName,
+    emailId,
+    password: passwordHash,
+  });
     await user.save();
     res.send("Account Created Succesfully....")
   } catch (error) {
-     res.status(404).send("Data not saved !!")
+     res.status(404).send("Data not saved: " + error.message)
   }
 })
 
+// API for login
+app.post("/login", async(req, res) => {
+  try {
+    const {emailId, password} = req.body;
+    const user = await User.findOne({emailId: emailId})
+    if(!user){
+      throw new Error("Email is not Vaild..")
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password)
+    if(isPasswordValid){
+      res.send("Login Successfully...")
+    }
+    else {
+      throw new Error("Incorrect Password...")
+    }
+  } catch (error) {
+    res.status(404).send("something went worng: " + error.message)
+  }
+})
 
 // get document by EmailId
 app.get("/feedbyemail", async (req, res) => {
@@ -35,7 +69,7 @@ app.get("/feedbyemail", async (req, res) => {
 
 // Get all documents
 app.get("/feed", async (req, res) => {
-  const email = req.body.emailId;
+   const email = req.body.emailId;
      try { 
       const user = await User.find({});         
       if(user.length === 0) {
@@ -85,7 +119,7 @@ app.patch("/user/:userId",  async (req, res) => {
     }
 })
 
-
+// connecting data base from cluster
 connectDB().then (()=>{
   console.log("Database connection Establised....")
     app.listen(7777, () => {

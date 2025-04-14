@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
     firstName:{
@@ -15,13 +16,21 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         unique: true,
         trim: true,
-
+        validate(value){
+        if(!validator.isEmail(value)){
+            throw new Error("Invalid Email Adderss : " + value)
+          }
+        }
     },
 
     password: {
         type:String,
         required: true,
-        minlenght: 8,
+        validate(value){
+            if(!validator.isStrongPassword(value)){
+                throw new Error("Enter strong Password : " + value)
+              }
+            }
     },
 
     age:{
@@ -41,7 +50,7 @@ const userSchema = new mongoose.Schema({
     photoUrl : {
     type :String,
     default: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg",
-    },  
+    }, 
 
     about : {
         type:String,
