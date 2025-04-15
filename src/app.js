@@ -3,8 +3,15 @@ const connectDB = require("./config/database")
 const app = express()
 const User = require("./models/user")
 const validateSignUpData = require("./utils/validation")
-app.use(express.json())
 const bcrypt = require('bcrypt');
+const cookieParser = require("cookie-parser")
+const jwt = require("jsonwebtoken")
+const {userAuth} = require("./middlewares/auth")
+
+
+app.use(express.json())
+app.use(cookieParser());
+
 
 
 // API for sign up
@@ -35,12 +42,15 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async(req, res) => {
   try {
     const {emailId, password} = req.body;
-    const user = await User.findOne({emailId: emailId})
+    const user = await User.findOne({emailId: emailId});
     if(!user){
       throw new Error("Email is not Vaild..")
     }
-    const isPasswordValid = await bcrypt.compare(password, user.password)
+    const isPasswordValid = await user.validatePassword(password);
     if(isPasswordValid){
+      // create token 
+      const token = await user.getJWT()
+      res.cookie("token", token);
       res.send("Login Successfully...")
     }
     else {
@@ -49,6 +59,22 @@ app.post("/login", async(req, res) => {
   } catch (error) {
     res.status(404).send("something went worng: " + error.message)
   }
+})
+
+// profile api
+app.get("/profile", userAuth, async(req, res) => {
+  try {
+    const user = req.user;
+    res.send(user);
+  } catch (error) {
+     res.status(404).send("error: " + error.message)
+  }
+})
+
+// sendConnectionRequest Api
+app.post("/sendConnectionRequest", userAuth, async(req, res) => {
+  const user = req.user
+  res.send(user.firstName + " send the connection request");
 })
 
 // get document by EmailId
