@@ -4,6 +4,8 @@ const {userAuth} = require("../middlewares/auth");
 const User = require("../models/user");
 const ConnectionRequest = require("../models/connectionRequest")
 
+
+// send the request to another profile with (interestd / ignored)
 requestRouter.post("/request/send/:status/:toUserId",
    userAuth, 
    async(req, res) => {
@@ -57,6 +59,7 @@ requestRouter.post("/request/send/:status/:toUserId",
     }
   })
 
+// you review to profile with (accepted / rejected)
 requestRouter.post("/request/review/:status/:requestId", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
@@ -80,12 +83,11 @@ requestRouter.post("/request/review/:status/:requestId", userAuth, async (req, r
 
     const data = await connectionRequest.save();
 
-    res.json({message: loggedInUser.firstName + " is " + status+" your request", data});
+    res.json({message: "you " + status+" this request", data});
   } catch (error) {
     res.status(400).send("Error: " + error.message);
   }
 })
-
 
 
   module.exports = requestRouter;

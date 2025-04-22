@@ -5,10 +5,12 @@ const connectionRequestSchema = new mongoose.Schema(
         fromUserId:{
             type:mongoose.Schema.Types.ObjectId,
             required: true,
+            ref: "User",           // storing ref for fromUserId from User schema to find name for each sender 
         },
         toUserId: {
             type:mongoose.Schema.Types.ObjectId,
             required: true,
+            ref: "User",
         },
         status: {
             type: String,
