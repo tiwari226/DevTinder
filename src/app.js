@@ -5,6 +5,8 @@ const cookieParser = require("cookie-parser")
 const cors = require("cors")
 const conf = require("./conf/conf")
 
+const PORT = process.env.PORT || conf.port || 4000;
+
 app.use(cors({
   origin:"http://localhost:5173",
   credentials: true
@@ -28,7 +30,7 @@ app.use("/", userRouter);
 // connecting data base from cluster
 connectDB().then (()=>{
   console.log("Database connection Establised....")
-    app.listen(conf.port || 4000, () => {
+    app.listen(PORT, () => {
     console.log("server successfully and Created on port number ****")
   })
 })
