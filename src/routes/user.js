@@ -17,7 +17,7 @@ userRouter.get("/user/requests/recieved", userAuth, async(req, res) => {
 
         res.json({
             message: "Data fetched Successfully...", 
-            Data: connectionRequests,
+            data: connectionRequests,
         })
     } catch (error) {
         res.status(404).send("ERROR: " + error.message);
@@ -37,7 +37,7 @@ userRouter.get("/user/connections", userAuth, async(req, res) => {
         .populate("fromUserId", USER_SAFE_DATA)
         .populate("toUserId", USER_SAFE_DATA);
     const data = connectionRequests.map((row) => {
-        if(row.fromUserId._id === loggedInUser._id){
+        if(row.fromUserId._id.toString() === loggedInUser._id.toString()){
             return row.toUserId;
         }
             return row.fromUserId;

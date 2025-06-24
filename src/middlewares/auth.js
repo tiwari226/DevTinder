@@ -1,13 +1,14 @@
 const jwt = require("jsonwebtoken")
 const User = require("../models/user");
+const data = require("../conf/conf")
 
 const userAuth = async(req, res, next) => {
           try {
             const {token} = req.cookies;
             if(!token){
-                throw new Error("Token is not found...")
+               return res.status(401).send("please login..");
             }
-            const decodeObj = await jwt.verify(token, "DEVTinder@790");
+            const decodeObj = await jwt.verify(token, data.jwt_key);
             const {_id} = decodeObj;
 
             const user = await User.findById(_id);

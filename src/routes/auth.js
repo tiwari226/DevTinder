@@ -20,8 +20,16 @@ authRouter.post("/signup", async (req, res) => {
     emailId,
     password: passwordHash,
   });
-    await user.save();
-    res.send("Account Created Succesfully....")
+
+    const savedUser = await user.save();
+    const token = await savedUser.getJWT();
+
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000),
+    })
+    res.json({message: "Account Created Succesfully....",
+      data: savedUser
+    })
   } catch (error) {
      res.status(404).send("Data not saved: " + error.message)
   }
@@ -39,7 +47,7 @@ authRouter.post("/login", async(req, res) => {
       // create token 
       const token = await user.getJWT()
       res.cookie("token", token);
-      res.send("Login Successfully...")
+      res.json(user);
     }
     else {
       throw new Error("Incorrect Password...")

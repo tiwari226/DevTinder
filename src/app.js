@@ -2,8 +2,15 @@ const express = require("express")
 const connectDB = require("./config/database")
 const app = express()
 const cookieParser = require("cookie-parser")
+const cors = require("cors")
+const conf = require("./conf/conf")
 
-app.use(express.json())
+app.use(cors({
+  origin:"http://localhost:5173",
+  credentials: true
+}));
+
+app.use(express.json());
 app.use(cookieParser());
 
 const authRouter = require("./routes/auth");
@@ -21,16 +28,14 @@ app.use("/", userRouter);
 // connecting data base from cluster
 connectDB().then (()=>{
   console.log("Database connection Establised....")
-    app.listen(7777, () => {
-    console.log("server successfully and Created on port number 7777")
+    app.listen(conf.port, () => {
+    console.log("server successfully and Created on port number ****")
   })
 })
 .catch((err) => {
     console.error("Databases Can't' be connected");
 })
 
-
-// last 19 min/ e - 13;
 
 
 
