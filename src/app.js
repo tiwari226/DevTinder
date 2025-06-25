@@ -7,8 +7,9 @@ const conf = require("./conf/conf")
 
 const PORT = process.env.PORT || conf.port || 4000;
 
+console.log(conf.front);
 app.use(cors({
-  origin:"http://localhost:5173",
+  origin: conf.front,
   credentials: true
 }));
 
