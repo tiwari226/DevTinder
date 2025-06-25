@@ -7,10 +7,11 @@ const conf = require("./conf/conf")
 
 const PORT = process.env.PORT || conf.port || 4000;
 
-console.log(conf.front);
 app.use(cors({
   origin: conf.front,
+
   credentials: true
+  
 }));
 
 app.use(express.json());
