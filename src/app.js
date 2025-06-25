@@ -37,7 +37,12 @@ connectDB().then (()=>{
   })
 })
 .catch((err) => {
+<<<<<<< HEAD
     console.error("Databases Can't' be connected", err.message);
+=======
+    console.error("Databases Can't' be connected");
+    console.error(err);
+>>>>>>> 593136b8754b3199f10f41b03d3272332b0a3705
 })
 
 
