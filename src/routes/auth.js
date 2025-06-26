@@ -46,7 +46,12 @@ authRouter.post("/login", async(req, res) => {
     if(isPasswordValid){
       // create token 
       const token = await user.getJWT()
-      res.cookie("token", token);
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        maxAge: 24 * 60 * 60 * 1000,
+      });
       res.json(user);
     }
     else {
