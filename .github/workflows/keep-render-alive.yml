@@ -10,5 +10,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Curl Render App
-        run: curl -s --retry 3 https://your-backend.onrender.com/
+        run: curl -s --retry 3 https://devtinder-eb1f.onrender.com/
 
