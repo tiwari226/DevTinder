@@ -3,6 +3,10 @@ const authRouter = express.Router();
 const {validateSignUpData} = require("../utils/validation")
 const bcrypt = require('bcrypt');
 const User = require("../models/user");
+// This is new 
+const crypto = require("crypto");
+const sendEmail = require("../utils/sendEmail");
+
 
 authRouter.post("/signup", async (req, res) => {
   try {
@@ -73,4 +77,85 @@ authRouter.post("/logout", async (req, res) => {
 
   res.send("Logout successfully..")
 })
+
+
+//  Forgot Password api
+
+authRouter.post("/forgot-password", async (req, res) => {
+  try {
+    const { emailId } = req.body;
+
+    if (!emailId) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({
+      emailId: emailId.toLowerCase()
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    user.resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    user.resetPasswordExpire = new Date(Date.now() + 15 * 60 * 1000);
+
+    await user.save();
+
+    const resetUrl =
+      `${process.env.FRONTURL}/reset-password/${resetToken}`;
+
+    await sendEmail(user.emailId, resetUrl);
+
+    res.json({ message: "Reset link sent to email" });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
+// rest password api
+
+authRouter.post("/reset-password/:token", async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: "Password required" });
+    }
+
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: new Date() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Token invalid or expired" });
+    }
+
+    user.password = await bcrypt.hash(password, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.json({ message: "Password reset successful" });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = authRouter;
